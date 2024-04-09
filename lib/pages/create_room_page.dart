@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:skribbl_app/core/theme/app_pallete.dart';
-import 'package:skribbl_app/pages/waiting_page.dart';
-import 'package:skribbl_app/widgets/dropdown_button.dart';
+import 'package:skribbl_app/pages/drawing_page.dart';
 import 'package:skribbl_app/widgets/gradient_button.dart';
 import 'package:skribbl_app/widgets/gradient_textfield.dart';
 
@@ -18,6 +17,21 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
   final formKey = GlobalKey<FormState>();
   late String maxRoundValue;
   late String numberOfPlayers;
+
+  void createRoom() {
+    if (formKey.currentState!.validate()) {
+      Map data = {
+        "playerName": playerNameController,
+        "roomName": roomNameController,
+      };
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DrawingPage(data: data),
+        ),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -56,28 +70,21 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
                     hintText: 'Enter room name',
                     controller: roomNameController,
                   ),
-                  const SizedBox(height: 15),
-                  const DropdownWidget(
-                    hintText: "Max Rounds",
-                    itemList: ["3", "5", "7", "9"],
-                  ),
-                  const SizedBox(height: 15),
-                  const DropdownWidget(
-                    hintText: "Number of Players",
-                    itemList: ["2", "3", "4", "5"],
-                  ),
+                  // const SizedBox(height: 15),
+                  // const DropdownWidget(
+                  //   hintText: "Max Rounds",
+                  //   itemList: ["3", "5", "7", "9"],
+                  // ),
+                  // const SizedBox(height: 15),
+                  // const DropdownWidget(
+                  //   hintText: "Number of Players",
+                  //   itemList: ["2", "3", "4", "5"],
+                  // ),
                   const SizedBox(height: 20),
                   GradientButton(
                       buttonText: "Create",
                       onPressed: () {
-                        if (formKey.currentState!.validate()) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const WaitingPage(),
-                            ),
-                          );
-                        }
+                        createRoom();
                       })
                 ],
               )),

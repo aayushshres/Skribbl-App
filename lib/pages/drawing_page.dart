@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class DrawingPage extends StatefulWidget {
-  const DrawingPage({super.key});
+  final Map data;
+
+  const DrawingPage({
+    super.key,
+    required this.data,
+  });
 
   @override
   State<DrawingPage> createState() => _DrawingPageState();
@@ -15,7 +20,7 @@ class _DrawingPageState extends State<DrawingPage> {
   void initState() {
     super.initState();
     connect();
-    print("test");
+    print(widget.data);
   }
 
   // socket io client connection
@@ -27,15 +32,16 @@ class _DrawingPageState extends State<DrawingPage> {
     _socket.connect();
 
     // listen to socket
-    _socket.onConnect((data) {
-      print('connected');
-    });
+    _socket.onConnect((data) {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
+      body: const Center(
+        child: Text("Drawing Page"),
+      ),
     );
   }
 }

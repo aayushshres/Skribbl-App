@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:skribbl_app/core/theme/app_pallete.dart';
-import 'package:skribbl_app/pages/waiting_page.dart';
+import 'package:skribbl_app/pages/drawing_page.dart';
 import 'package:skribbl_app/widgets/gradient_button.dart';
 import 'package:skribbl_app/widgets/gradient_textfield.dart';
 
@@ -15,6 +15,21 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
   final playerNameController = TextEditingController();
   final roomNameController = TextEditingController();
   final formKey = GlobalKey<FormState>();
+
+  void joinRoom() {
+    if (formKey.currentState!.validate()) {
+      Map data = {
+        "playerName": playerNameController,
+        "roomName": roomNameController,
+      };
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DrawingPage(data: data),
+        ),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -55,14 +70,7 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
                 GradientButton(
                     buttonText: "Join",
                     onPressed: () {
-                      if (formKey.currentState!.validate()) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const WaitingPage(),
-                          ),
-                        );
-                      }
+                      joinRoom();
                     })
               ],
             )));
