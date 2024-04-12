@@ -20,7 +20,6 @@ class _DrawingPageState extends State<DrawingPage> {
   void initState() {
     super.initState();
     connect();
-    print(widget.data);
   }
 
   // socket io client connection
