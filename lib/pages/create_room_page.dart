@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:skribbl_app/core/theme/app_pallete.dart';
-import 'package:skribbl_app/pages/drawing_page.dart';
-import 'package:skribbl_app/widgets/gradient_button.dart';
 import 'package:skribbl_app/widgets/gradient_textfield.dart';
+import 'paint_screen.dart';
 
 class CreateRoomPage extends StatefulWidget {
   const CreateRoomPage({super.key});
@@ -12,82 +10,125 @@ class CreateRoomPage extends StatefulWidget {
 }
 
 class _CreateRoomPageState extends State<CreateRoomPage> {
-  final playerNameController = TextEditingController();
-  final roomNameController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
-  late String maxRoundValue;
-  late String numberOfPlayers;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _roomNameController = TextEditingController();
+  late String? _maxRoundsValue;
+  late String? _roomSizeValue;
 
   void createRoom() {
-    if (formKey.currentState!.validate()) {
-      Map data = {
-        "playerName": playerNameController,
-        "roomName": roomNameController,
+    if (_nameController.text.isNotEmpty &&
+        _roomNameController.text.isNotEmpty &&
+        _maxRoundsValue != null &&
+        _roomSizeValue != null) {
+      Map<String, String> data = {
+        "nickname": _nameController.text,
+        "name": _roomNameController.text,
+        "occupancy": _maxRoundsValue!,
+        "maxRounds": _roomSizeValue!
       };
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DrawingPage(data: data),
-        ),
-      );
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) =>
+              PaintScreen(data: data, screenFrom: 'createRoom')));
     }
-  }
-
-  @override
-  void dispose() {
-    playerNameController.dispose();
-    roomNameController.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          iconTheme: const IconThemeData(color: AppPallete.gradient1),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Form(
-              key: formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "Create Room",
-                    style: TextStyle(
-                        fontSize: 50,
-                        fontWeight: FontWeight.bold,
-                        color: AppPallete.gradient1),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            "Create Room",
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 30,
+            ),
+          ),
+          SizedBox(height: MediaQuery.of(context).size.height * 0.08),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            child: GradientTextField(
+              controller: _nameController,
+              hintText: "Enter your name",
+            ),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            child: GradientTextField(
+              controller: _roomNameController,
+              hintText: "Enter Room Name",
+            ),
+          ),
+          const SizedBox(height: 20),
+          DropdownButton<String>(
+            focusColor: const Color(0xffF5F6FA),
+            items: <String>["2", "5", "10", "15"]
+                .map<DropdownMenuItem<String>>(
+                  (String value) => DropdownMenuItem(
+                    value: value,
+                    child: Text(
+                      value,
+                      style: const TextStyle(color: Colors.black),
+                    ),
                   ),
-                  const SizedBox(height: 30),
-                  GradientTextField(
-                    hintText: 'Enter your name',
-                    controller: playerNameController,
+                )
+                .toList(),
+            hint: const Text('Select Max Rounds',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                )),
+            onChanged: (String? value) {
+              setState(() {
+                _maxRoundsValue = value;
+              });
+            },
+          ),
+          const SizedBox(height: 20),
+          DropdownButton<String>(
+            focusColor: const Color(0xffF5F6FA),
+            items: <String>["2", "3", "4", "5", "6", "7", "8"]
+                .map<DropdownMenuItem<String>>(
+                  (String value) => DropdownMenuItem(
+                    value: value,
+                    child: Text(
+                      value,
+                      style: const TextStyle(color: Colors.black),
+                    ),
                   ),
-                  const SizedBox(height: 15),
-                  GradientTextField(
-                    hintText: 'Enter room name',
-                    controller: roomNameController,
-                  ),
-                  // const SizedBox(height: 15),
-                  // const DropdownWidget(
-                  //   hintText: "Max Rounds",
-                  //   itemList: ["3", "5", "7", "9"],
-                  // ),
-                  // const SizedBox(height: 15),
-                  // const DropdownWidget(
-                  //   hintText: "Number of Players",
-                  //   itemList: ["2", "3", "4", "5"],
-                  // ),
-                  const SizedBox(height: 20),
-                  GradientButton(
-                      buttonText: "Create",
-                      onPressed: () {
-                        createRoom();
-                      })
-                ],
-              )),
-        ));
+                )
+                .toList(),
+            hint: const Text('Select Room Size',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                )),
+            onChanged: (String? value) {
+              setState(() {
+                _roomSizeValue = value;
+              });
+            },
+          ),
+          const SizedBox(height: 40),
+          ElevatedButton(
+            onPressed: createRoom,
+            style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.blue),
+                textStyle: MaterialStateProperty.all(
+                    const TextStyle(color: Colors.white)),
+                minimumSize: MaterialStateProperty.all(
+                    Size(MediaQuery.of(context).size.width / 2.5, 50))),
+            child: const Text(
+              "Create",
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

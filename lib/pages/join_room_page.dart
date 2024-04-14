@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:skribbl_app/core/theme/app_pallete.dart';
-import 'package:skribbl_app/pages/drawing_page.dart';
-import 'package:skribbl_app/widgets/gradient_button.dart';
-import 'package:skribbl_app/widgets/gradient_textfield.dart';
+import 'package:skribbl_app/pages/paint_screen.dart';
+import 'package:skribbl_app/widgets/custom_text_field.dart';
 
 class JoinRoomPage extends StatefulWidget {
   const JoinRoomPage({super.key});
@@ -12,67 +10,68 @@ class JoinRoomPage extends StatefulWidget {
 }
 
 class _JoinRoomPageState extends State<JoinRoomPage> {
-  final playerNameController = TextEditingController();
-  final roomNameController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _roomNameController = TextEditingController();
 
   void joinRoom() {
-    if (formKey.currentState!.validate()) {
-      Map data = {
-        "playerName": playerNameController,
-        "roomName": roomNameController,
+    if (_nameController.text.isNotEmpty &&
+        _roomNameController.text.isNotEmpty) {
+      Map<String, String> data = {
+        "nickname": _nameController.text,
+        "name": _roomNameController.text
       };
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DrawingPage(data: data),
-        ),
-      );
-    }
-  }
 
-  @override
-  void dispose() {
-    playerNameController.dispose();
-    roomNameController.dispose();
-    super.dispose();
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) =>
+              PaintScreen(data: data, screenFrom: 'joinRoom')));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          iconTheme: const IconThemeData(color: AppPallete.gradient1),
-        ),
-        body: Form(
-            key: formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  "Join Room",
-                  style: TextStyle(
-                      fontSize: 50,
-                      fontWeight: FontWeight.bold,
-                      color: AppPallete.gradient1),
-                ),
-                const SizedBox(height: 30),
-                GradientTextField(
-                  hintText: 'Enter your name',
-                  controller: playerNameController,
-                ),
-                const SizedBox(height: 15),
-                GradientTextField(
-                  hintText: 'Enter room name',
-                  controller: roomNameController,
-                ),
-                const SizedBox(height: 15),
-                GradientButton(
-                    buttonText: "Join",
-                    onPressed: () {
-                      joinRoom();
-                    })
-              ],
-            )));
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            "Join Room",
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 30,
+            ),
+          ),
+          SizedBox(height: MediaQuery.of(context).size.height * 0.08),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            child: CustomTextField(
+              controller: _nameController,
+              hintText: "Enter your name",
+            ),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            child: CustomTextField(
+              controller: _roomNameController,
+              hintText: "Enter Room Name",
+            ),
+          ),
+          const SizedBox(height: 40),
+          ElevatedButton(
+            onPressed: joinRoom,
+            style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.blue),
+                textStyle: MaterialStateProperty.all(
+                    const TextStyle(color: Colors.white)),
+                minimumSize: MaterialStateProperty.all(
+                    Size(MediaQuery.of(context).size.width / 2.5, 50))),
+            child: const Text(
+              "Join",
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
