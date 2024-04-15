@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skribbl_app/core/theme/app_pallete.dart';
 import 'package:skribbl_app/pages/paint_screen.dart';
 import 'package:skribbl_app/widgets/custom_text_field.dart';
 
@@ -21,15 +22,18 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
         "name": _roomNameController.text
       };
 
-      Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) =>
-              PaintScreen(data: data, screenFrom: 'joinRoom')));
+      // Navigator.of(context).push(MaterialPageRoute(
+      //     builder: (context) =>
+      //         PaintScreen(data: data, screenFrom: 'joinRoom')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        iconTheme: const IconThemeData(color: AppPallete.gradient1),
+      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
