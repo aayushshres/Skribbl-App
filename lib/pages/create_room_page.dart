@@ -28,9 +28,9 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
         "occupancy": _maxRoundsValue!,
         "maxRounds": _roomSizeValue!
       };
-      // Navigator.of(context).push(MaterialPageRoute(
-      //     builder: (context) =>
-      //         PaintScreen(data: data, screenFrom: 'createRoom')));
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) =>
+              PaintScreen(data: data, screenFrom: 'createRoom')));
     }
   }
 
@@ -120,7 +120,7 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
               ),
               const SizedBox(height: 40),
               GradientButton(
-                  buttonText: "Create",
+                  buttonText: "Create Room",
                   onPressed: () {
                     createRoom();
                   }),

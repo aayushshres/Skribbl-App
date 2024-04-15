@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:skribbl_app/core/theme/app_pallete.dart';
 import 'package:skribbl_app/pages/paint_screen.dart';
-import 'package:skribbl_app/widgets/custom_text_field.dart';
+import 'package:skribbl_app/widgets/gradient_button.dart';
+import 'package:skribbl_app/widgets/gradient_textfield.dart';
 
 class JoinRoomPage extends StatefulWidget {
   const JoinRoomPage({super.key});
@@ -22,9 +23,9 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
         "name": _roomNameController.text
       };
 
-      // Navigator.of(context).push(MaterialPageRoute(
-      //     builder: (context) =>
-      //         PaintScreen(data: data, screenFrom: 'joinRoom')));
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) =>
+              PaintScreen(data: data, screenFrom: 'joinRoom')));
     }
   }
 
@@ -34,47 +35,39 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
       appBar: AppBar(
         iconTheme: const IconThemeData(color: AppPallete.gradient1),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            "Join Room",
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 30,
-            ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                "JOIN ROOM",
+                style: TextStyle(
+                  color: AppPallete.gradient1,
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.08),
+              GradientTextField(
+                hintText: "Enter Your Name",
+                controller: _nameController,
+              ),
+              const SizedBox(height: 20),
+              GradientTextField(
+                hintText: "Enter Room Name",
+                controller: _roomNameController,
+              ),
+              const SizedBox(height: 40),
+              GradientButton(
+                  buttonText: "Join Room",
+                  onPressed: () {
+                    joinRoom();
+                  }),
+            ],
           ),
-          SizedBox(height: MediaQuery.of(context).size.height * 0.08),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            child: CustomTextField(
-              controller: _nameController,
-              hintText: "Enter your name",
-            ),
-          ),
-          const SizedBox(height: 20),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            child: CustomTextField(
-              controller: _roomNameController,
-              hintText: "Enter Room Name",
-            ),
-          ),
-          const SizedBox(height: 40),
-          ElevatedButton(
-            onPressed: joinRoom,
-            style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(Colors.blue),
-                textStyle: MaterialStateProperty.all(
-                    const TextStyle(color: Colors.white)),
-                minimumSize: MaterialStateProperty.all(
-                    Size(MediaQuery.of(context).size.width / 2.5, 50))),
-            child: const Text(
-              "Join",
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
