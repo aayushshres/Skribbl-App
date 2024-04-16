@@ -10,6 +10,7 @@ import 'package:skribbl_app/core/theme/app_pallete.dart';
 import 'package:skribbl_app/models/my_custom_painter.dart';
 import 'package:skribbl_app/models/touch_points.dart';
 import 'package:skribbl_app/pages/final_leaderboard.dart';
+import 'package:skribbl_app/pages/home_page.dart';
 import 'package:skribbl_app/pages/waiting_lobby_screen.dart';
 import 'package:skribbl_app/sidebar/player_scoreboard__drawer.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
@@ -118,6 +119,12 @@ class _PaintScreenState extends State<PaintScreen> {
             });
           });
         }
+      });
+
+      _socket.on("notCorrectGame", (data) {
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const HomePage()),
+            (route) => false);
       });
 
       _socket.on("points", (point) {
@@ -250,6 +257,13 @@ class _PaintScreenState extends State<PaintScreen> {
             );
           });
     });
+  }
+
+  @override
+  void dispose() {
+    _socket.dispose();
+    _timer.cancel();
+    super.dispose();
   }
 
   @override
