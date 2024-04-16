@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:skribbl_app/core/theme/app_pallete.dart';
 
 class WaitingLobbyScreen extends StatefulWidget {
   final int occupancy;
@@ -24,45 +25,14 @@ class _WaitingLobbyScreenState extends State<WaitingLobbyScreen> {
       child: Column(
         children: [
           SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-          Padding(
-              padding: const EdgeInsets.all(8),
-              child: Text(
-                  'Waiting for ${widget.occupancy - widget.noOfPlayers} players to join',
-                  style: const TextStyle(fontSize: 30))),
-          SizedBox(height: MediaQuery.of(context).size.height * 0.06),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextField(
-              readOnly: true,
-              onTap: () {
-                // copy room code
-                Clipboard.setData(ClipboardData(text: widget.lobbyName));
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(const SnackBar(content: Text('Copied!')));
-              },
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Colors.transparent),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Colors.transparent),
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                filled: true,
-                fillColor: const Color(0xffF5F5FA),
-                hintText: 'Tap to copy room name!',
-                hintStyle: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ),
+          const Padding(
+              padding: EdgeInsets.all(8),
+              child: Text('Waiting for players to join....',
+                  style: TextStyle(fontSize: 20))),
+          const LinearProgressIndicator(
+            color: AppPallete.gradient1,
           ),
-          SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-          const Text('Players: ', style: TextStyle(fontSize: 18)),
+          SizedBox(height: MediaQuery.of(context).size.height * 0.03),
           ListView.builder(
               primary: true,
               shrinkWrap: true,
@@ -72,15 +42,63 @@ class _WaitingLobbyScreenState extends State<WaitingLobbyScreen> {
                   leading: Text(
                     "${index + 1}.",
                     style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold),
+                        fontSize: 20, fontWeight: FontWeight.w600),
                   ),
                   title: Text(
                     widget.players[index]['nickname'],
                     style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold),
+                        fontSize: 20, fontWeight: FontWeight.w600),
                   ),
                 );
-              })
+              }),
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: InkWell(
+              onTap: () {
+                // copy room code
+                Clipboard.setData(ClipboardData(text: widget.lobbyName));
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(const SnackBar(content: Text('Copied!')));
+              },
+              borderRadius: BorderRadius.circular(10),
+              child: Ink(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  gradient: const LinearGradient(
+                    colors: [
+                      AppPallete.gradient1,
+                      AppPallete.gradient2,
+                      AppPallete.gradient3,
+                      // AppPallete.gradient3,
+                    ],
+                    begin: Alignment.bottomLeft,
+                    end: Alignment.topRight,
+                  ),
+                ),
+                child: const Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Copy Room Name",
+                        style: TextStyle(
+                          color: AppPallete.backgroundColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Icon(
+                        Icons.copy,
+                        color: AppPallete.backgroundColor,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
