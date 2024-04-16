@@ -159,7 +159,9 @@ class _PaintScreenState extends State<PaintScreen> {
     }
 
     return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          surfaceTintColor: AppPallete.backgroundColor,
+        ),
         body: Padding(
           padding: const EdgeInsets.all(15.0),
           child: SingleChildScrollView(
@@ -250,7 +252,7 @@ class _PaintScreenState extends State<PaintScreen> {
                       children: textBlankWidget,
                     ),
                     SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.3,
+                      height: MediaQuery.of(context).size.height * 0.2,
                       child: ListView.builder(
                           controller: _scrollController,
                           shrinkWrap: true,
@@ -275,6 +277,9 @@ class _PaintScreenState extends State<PaintScreen> {
                               ),
                             );
                           }),
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.1,
                     )
                   ],
                 ),
@@ -305,6 +310,7 @@ class _PaintScreenState extends State<PaintScreen> {
                         },
                         decoration: const InputDecoration(
                           hintText: "Your Guess",
+                          fillColor: AppPallete.backgroundColor,
                         ),
                       ),
                     ),
