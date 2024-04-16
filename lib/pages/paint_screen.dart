@@ -27,11 +27,28 @@ class _PaintScreenState extends State<PaintScreen> {
   double opacity = 1;
   double strokeWidth = 2;
   List<Widget> textBlankWidget = [];
+  final ScrollController _scrollController = ScrollController();
+  List<Map> messages = [];
+  TextEditingController controller = TextEditingController();
 
   @override
   void initState() {
     connect();
     super.initState();
+  }
+
+  void renderTextBlank(String text) {
+    textBlankWidget.clear();
+    for (int i = 0; i < text.length; i++) {
+      textBlankWidget.add(
+        const Text(
+          "_",
+          style: TextStyle(
+            fontSize: 30,
+          ),
+        ),
+      );
+    }
   }
 
   // socket io client connection
@@ -52,6 +69,7 @@ class _PaintScreenState extends State<PaintScreen> {
     _socket.onConnect((data) {
       _socket.on('updateRoom', (roomData) {
         setState(() {
+          renderTextBlank(roomData["word"]);
           dataOfRoom = roomData;
         });
         if (roomData['isJoin'] != true) {
@@ -97,6 +115,12 @@ class _PaintScreenState extends State<PaintScreen> {
         points.clear();
       });
     });
+
+    _socket.on("msg", (msgData) {
+      setState(() {
+        messages.add(msgData);
+      });
+    });
   }
 
   @override
@@ -136,96 +160,159 @@ class _PaintScreenState extends State<PaintScreen> {
 
     return Scaffold(
         appBar: AppBar(),
-        body: Stack(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
+        body: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: SingleChildScrollView(
+            child: Stack(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(15),
-                  width: width,
-                  height: height * 0.55,
-                  child: GestureDetector(
-                    onPanUpdate: (details) {
-                      _socket.emit("paint", {
-                        "details": {
-                          "dx": details.localPosition.dx,
-                          "dy": details.localPosition.dy,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    SizedBox(
+                      width: width,
+                      height: height * 0.40,
+                      child: GestureDetector(
+                        onPanUpdate: (details) {
+                          _socket.emit("paint", {
+                            "details": {
+                              "dx": details.localPosition.dx,
+                              "dy": details.localPosition.dy,
+                            },
+                            "roomName": widget.data["name"],
+                          });
                         },
-                        "roomName": widget.data["name"],
-                      });
-                    },
-                    onPanStart: (details) {
-                      _socket.emit("paint", {
-                        "details": {
-                          "dx": details.localPosition.dx,
-                          "dy": details.localPosition.dy,
+                        onPanStart: (details) {
+                          _socket.emit("paint", {
+                            "details": {
+                              "dx": details.localPosition.dx,
+                              "dy": details.localPosition.dy,
+                            },
+                            "roomName": widget.data["name"],
+                          });
                         },
-                        "roomName": widget.data["name"],
-                      });
-                    },
-                    onPanEnd: (details) {
-                      _socket.emit("paint", {
-                        "details": null,
-                        "roomName": widget.data["name"],
-                      });
-                    },
-                    child: SizedBox.expand(
-                      child: ClipRRect(
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(20),
-                        ),
-                        child: RepaintBoundary(
-                          child: CustomPaint(
-                            size: Size.infinite,
-                            painter: MyCustomPainter(pointsList: points),
+                        onPanEnd: (details) {
+                          _socket.emit("paint", {
+                            "details": null,
+                            "roomName": widget.data["name"],
+                          });
+                        },
+                        child: SizedBox.expand(
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(20),
+                            ),
+                            child: RepaintBoundary(
+                              child: CustomPaint(
+                                size: Size.infinite,
+                                painter: MyCustomPainter(pointsList: points),
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        selectColor();
-                      },
-                      icon: const Icon(Icons.color_lens,
-                          color: AppPallete.gradient1),
+                    Row(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            selectColor();
+                          },
+                          icon: const Icon(Icons.color_lens,
+                              color: AppPallete.gradient1),
+                        ),
+                        Expanded(
+                          child: Slider(
+                            min: 1.0,
+                            max: 10.0,
+                            label: "Strokewidth $strokeWidth",
+                            value: strokeWidth,
+                            onChanged: (double value) {
+                              Map map = {
+                                "value": value,
+                                "roomName": dataOfRoom["name"],
+                              };
+                              _socket.emit("stroke-width", map);
+                            },
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            _socket.emit("clean-screen", dataOfRoom["name"]);
+                          },
+                          icon: const Icon(Icons.layers_clear,
+                              color: AppPallete.gradient1),
+                        ),
+                      ],
                     ),
-                    Expanded(
-                      child: Slider(
-                        min: 1.0,
-                        max: 10.0,
-                        label: "Strokewidth $strokeWidth",
-                        value: strokeWidth,
-                        onChanged: (double value) {
-                          Map map = {
-                            "value": value,
-                            "roomName": dataOfRoom["name"],
-                          };
-                          _socket.emit("stroke-width", map);
-                        },
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: textBlankWidget,
                     ),
-                    IconButton(
-                      onPressed: () {
-                        _socket.emit("clean-screen", dataOfRoom["name"]);
-                      },
-                      icon: const Icon(Icons.layers_clear,
-                          color: AppPallete.gradient1),
-                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.3,
+                      child: ListView.builder(
+                          controller: _scrollController,
+                          shrinkWrap: true,
+                          itemCount: messages.length,
+                          itemBuilder: (context, index) {
+                            var msg = messages[index].values;
+                            return ListTile(
+                              title: Text(
+                                msg.elementAt(0),
+                                style: const TextStyle(
+                                  color: AppPallete.gradient1,
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              subtitle: Text(
+                                msg.elementAt(1),
+                                style: const TextStyle(
+                                  color: AppPallete.greyColor,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            );
+                          }),
+                    )
                   ],
                 ),
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                //   children: textBlankWidget,
-                // ),
+                Positioned(
+                  bottom: 0,
+                  top: 0,
+                  right: 0,
+                  left: 0,
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 15),
+                      child: TextField(
+                        autocorrect: false,
+                        controller: controller,
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (value) {
+                          if (value.trim().isNotEmpty) {
+                            Map map = {
+                              "username": widget.data["nickname"],
+                              "msg": value.trim(),
+                              "word": dataOfRoom["word"],
+                              "roomName": widget.data["name"],
+                            };
+                            _socket.emit("msg", map);
+                            controller.clear();
+                          }
+                        },
+                        decoration: const InputDecoration(
+                          hintText: "Your Guess",
+                        ),
+                      ),
+                    ),
+                  ),
+                )
               ],
             ),
-          ],
+          ),
         ));
   }
 }
