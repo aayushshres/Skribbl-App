@@ -12,20 +12,20 @@ class JoinRoomPage extends StatefulWidget {
 }
 
 class _JoinRoomPageState extends State<JoinRoomPage> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _roomNameController = TextEditingController();
+  final nameController = TextEditingController();
+  final roomNameController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
 
   void joinRoom() {
-    if (_nameController.text.isNotEmpty &&
-        _roomNameController.text.isNotEmpty) {
+    if (formKey.currentState!.validate()) {
       Map<String, String> data = {
-        "nickname": _nameController.text,
-        "name": _roomNameController.text
+        "nickname": nameController.text,
+        "name": roomNameController.text
       };
 
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) =>
-              PaintScreen(data: data, screenFrom: 'joinRoom')));
+              PaintScreen(data: data, screenFrom: "joinRoom")));
     }
   }
 
@@ -38,34 +38,37 @@ class _JoinRoomPageState extends State<JoinRoomPage> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(15.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                "JOIN ROOM",
-                style: TextStyle(
-                  color: AppPallete.gradient1,
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "JOIN ROOM",
+                  style: TextStyle(
+                    color: AppPallete.gradient1,
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.08),
-              GradientTextField(
-                hintText: "Enter Your Name",
-                controller: _nameController,
-              ),
-              const SizedBox(height: 20),
-              GradientTextField(
-                hintText: "Enter Room Name",
-                controller: _roomNameController,
-              ),
-              const SizedBox(height: 40),
-              GradientButton(
-                  buttonText: "Join Room",
-                  onPressed: () {
-                    joinRoom();
-                  }),
-            ],
+                SizedBox(height: MediaQuery.of(context).size.height * 0.08),
+                GradientTextField(
+                  hintText: "Enter Your Name",
+                  controller: nameController,
+                ),
+                const SizedBox(height: 20),
+                GradientTextField(
+                  hintText: "Enter Room Name",
+                  controller: roomNameController,
+                ),
+                const SizedBox(height: 40),
+                GradientButton(
+                    buttonText: "Join Room",
+                    onPressed: () {
+                      joinRoom();
+                    }),
+              ],
+            ),
           ),
         ),
       ),
