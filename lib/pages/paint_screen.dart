@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -8,6 +10,7 @@ import 'package:skribbl_app/core/theme/app_pallete.dart';
 import 'package:skribbl_app/models/my_custom_painter.dart';
 import 'package:skribbl_app/models/touch_points.dart';
 import 'package:skribbl_app/pages/waiting_lobby_screen.dart';
+import 'package:skribbl_app/sidebar/player_scoreboard__drawer.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class PaintScreen extends StatefulWidget {
@@ -39,6 +42,8 @@ class _PaintScreenState extends State<PaintScreen> {
   int _start = 60;
   late Timer _timer;
   var scaffoldKey = GlobalKey<ScaffoldState>();
+  List<Map> scoreboard = [];
+  bool isTextInputReadOnly = false;
 
   @override
   void initState() {
@@ -100,6 +105,15 @@ class _PaintScreenState extends State<PaintScreen> {
         if (roomData['isJoin'] != true) {
           startTimer();
         }
+        scoreboard.clear();
+        for (int i = 0; i < roomData["players"].length; i++) {
+          setState(() {
+            scoreboard.add({
+              "username": roomData["players"][i]["nickname"],
+              "points": roomData["players"][i]["points"].toString(),
+            });
+          });
+        }
       });
 
       _socket.on("points", (point) {
@@ -135,6 +149,25 @@ class _PaintScreenState extends State<PaintScreen> {
       });
     });
 
+    _socket.on("closeInput", (_) {
+      _socket.emit("updateScore", widget.data["name"]);
+      setState(() {
+        isTextInputReadOnly = true;
+      });
+    });
+
+    _socket.on("updateScore", (roomData) {
+      scoreboard.clear();
+      for (int i = 0; i < roomData["players"].length; i++) {
+        setState(() {
+          scoreboard.add({
+            "username": roomData["players"][i]["nickname"],
+            "points": roomData["players"][i]["points"].toString(),
+          });
+        });
+      }
+    });
+
     _socket.on("clear-screen", (data) {
       setState(() {
         points.clear();
@@ -165,6 +198,7 @@ class _PaintScreenState extends State<PaintScreen> {
               setState(() {
                 dataOfRoom = data;
                 renderTextBlank(data["word"]);
+                isTextInputReadOnly = false;
                 guessedUserCtr = 0;
                 _start = 60;
                 points.clear();
@@ -218,6 +252,8 @@ class _PaintScreenState extends State<PaintScreen> {
     }
 
     return Scaffold(
+      key: scaffoldKey,
+      drawer: PlayerScore(scoreboard),
       appBar: AppBar(
         title: Text(
           "Scribbl",
@@ -228,6 +264,14 @@ class _PaintScreenState extends State<PaintScreen> {
           )),
         ),
         centerTitle: true,
+        leading: IconButton(
+          onPressed: () => scaffoldKey.currentState!.openDrawer(),
+          icon: const Icon(
+            Icons.menu,
+            color: AppPallete.gradient1,
+            size: 32,
+          ),
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -391,6 +435,7 @@ class _PaintScreenState extends State<PaintScreen> {
                                     margin: const EdgeInsets.symmetric(
                                         horizontal: 15),
                                     child: TextField(
+                                      readOnly: isTextInputReadOnly,
                                       autocorrect: false,
                                       controller: controller,
                                       textInputAction: TextInputAction.done,
