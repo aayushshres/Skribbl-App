@@ -120,6 +120,11 @@ class _PaintScreenState extends State<PaintScreen> {
       setState(() {
         messages.add(msgData);
       });
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent + 40,
+        duration: const Duration(microseconds: 200),
+        curve: Curves.easeInOut,
+      );
     });
   }
 
